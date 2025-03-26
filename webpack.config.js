@@ -1,11 +1,11 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { StatsWriterPlugin } = require("webpack-stats-plugin");
 module.exports = {
-  entry: './src/index.js',
+  entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[contenthash].js',
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].[contenthash].js",
     clean: true,
   },
   module: {
@@ -14,9 +14,9 @@ module.exports = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
+            presets: ["@babel/preset-env", "@babel/preset-react"],
           },
         },
       },
@@ -24,21 +24,39 @@ module.exports = {
   },
   optimization: {
     splitChunks: {
-      chunks: 'all',
-      name: 'vendors',
-      filename: '[name].[contenthash].js',
+      chunks: "async",
+      name: "vendors",
+      filename: "[name].[contenthash].js",
+      cacheGroups: {
+        node_modules: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
     },
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: "./src/index.html",
+    }),
+    new StatsWriterPlugin({
+      stats: {
+        all: false,
+        assets: true,
+      },
     }),
   ],
   devServer: {
     static: {
-      directory: path.join(__dirname, 'dist'),
+      directory: path.join(__dirname, "dist"),
     },
     port: 3000,
     hot: true,
   },
-}; 
+};
